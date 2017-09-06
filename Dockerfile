@@ -1,6 +1,7 @@
 FROM microsoft/dotnet:latest 
 COPY . /app 
 WORKDIR /app 
+RUN ["dotnet", "migrate"]
 RUN ["dotnet", "restore"]
 RUN ["dotnet", "build"]
 EXPOSE 60002/tcp
