@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:latest 
+FROM microsoft/dotnet:1.1-runtime 
 COPY . /src/app 
 WORKDIR /src/app 
 RUN ["dotnet", "migrate"]
