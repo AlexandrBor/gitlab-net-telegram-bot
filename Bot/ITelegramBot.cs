@@ -6,8 +6,6 @@ namespace GitlabTelegramBot
 {
     public interface ITelegramBot
     {
-        bool IsConnected { get; }
-
         void Connect(string accessToken, string name);
         void Start();
         void Stop();

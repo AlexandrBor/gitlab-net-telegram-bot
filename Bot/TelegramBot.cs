@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using GitlabTelegramBot.DB;
 using GitlabTelegramBot.Options;
@@ -17,15 +18,12 @@ namespace GitlabTelegramBot
 {
     public class Bot : ITelegramBot
     {
-        public Boolean IsConnected { get; private set; }
-
         public Bot(ILogger<Bot> logger, TelegramBotDBContext context, IOptions<GitlabConfig> gitlabConfig)
         {
             _logger = logger;
             _context = context;
             _newUsers = new List<TelegramBotUser>();
             _gitlab = new GitLabClient(gitlabConfig.Value.Host, gitlabConfig.Value.Token);
-            IsConnected = false;
         }
 
         public void Connect(string accessToken, string name)
@@ -35,7 +33,11 @@ namespace GitlabTelegramBot
                 _botName = name;
                 _logger.LogInformation($"Connected TelegramBot {name} with token: {accessToken}");
                 _bot = new TelegramBot(accessToken);
-                IsConnected = CheckConnect().Result;
+                _cts = new CancellationTokenSource();
+                if (!CheckConnect().Result)
+                {
+                    _cts.Cancel();
+                }
             }
             else
             {
@@ -59,18 +61,21 @@ namespace GitlabTelegramBot
         public void Start()
         {
             _logger.LogInformation("TelegramBot start listening");
-            Task.Run(() => Listening());
+            Task.Factory.StartNew(() => Listening(), TaskCreationOptions.LongRunning);
         }
 
         public void Stop()
         {
-            IsConnected = false;
+            if (_cts != null)
+            {
+                _cts.Cancel();
+            }
         }
 
         private async Task Listening()
         {
             long offset = 0;
-            while (IsConnected)
+            while (!_cts.IsCancellationRequested)
             {
                 var updates = await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
                 if (updates != null)
@@ -223,6 +228,7 @@ namespace GitlabTelegramBot
         private readonly GitLabClient _gitlab;
 
         private TelegramBot _bot;
+        private CancellationTokenSource _cts;
         private string _botName;
     }
 }
