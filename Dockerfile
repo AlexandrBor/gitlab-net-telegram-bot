@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore-build 
+FROM microsoft/dotnet:1.0.5-sdk 
 COPY . /src/app 
 WORKDIR /src/app 
 RUN ["dotnet", "migrate"]
