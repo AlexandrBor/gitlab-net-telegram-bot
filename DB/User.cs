@@ -12,11 +12,10 @@ namespace GitlabTelegramBot.DB
         public Int64 ChatId { get; set; }
         public String TelegramName { get; set; }
         public String GitlabUserName { get; set; }
-        public String GitlabApiKey { get; set; }
 
         public Boolean IsRegistered()
         {
-            if (string.IsNullOrEmpty(TelegramName) || string.IsNullOrEmpty(GitlabUserName) || string.IsNullOrEmpty(GitlabApiKey))
+            if (string.IsNullOrEmpty(TelegramName) || string.IsNullOrEmpty(GitlabUserName))
             {
                 return false;
             }

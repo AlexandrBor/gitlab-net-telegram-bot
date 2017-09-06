@@ -130,12 +130,6 @@ namespace GitlabTelegramBot
             else if (string.IsNullOrEmpty(newUser.GitlabUserName))
             {
                 newUser.GitlabUserName = message.Text;
-                var req = new SendMessage(chat.Id, $"Ok! Whats your gitlab api key?");
-                await _bot.MakeRequestAsync(req);
-            }
-            else if (string.IsNullOrEmpty(newUser.GitlabApiKey))
-            {
-                newUser.GitlabApiKey = message.Text;
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
                 _newUsers.Remove(newUser);
