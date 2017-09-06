@@ -1,6 +1,6 @@
 FROM microsoft/dotnet:latest 
-COPY . /app 
-WORKDIR /app 
+COPY . /src/app 
+WORKDIR /src/app 
 RUN ["dotnet", "migrate"]
 RUN ["dotnet", "restore"]
 RUN ["dotnet", "build"]
