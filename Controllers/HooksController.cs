@@ -39,13 +39,13 @@ namespace GitlabTelegramBot.Controllers
             using (var jreader = new JsonTextReader(reader))
             {
                 var content = JToken.ReadFrom(jreader);
+                _logger.LogInformation($"Catched new hook: {content}");
                 var kind = content.Value<String>("object_kind");
                 var serializer = new JsonSerializer();
                 switch (kind)
                 {
                     case "note":
                         {
-
                             var note = content.ToObject<Note>(serializer);
                             await NewNote(note);
                             return;
@@ -69,6 +69,7 @@ namespace GitlabTelegramBot.Controllers
         public async Task NewPush(Push push)
         {
             var branch = GetBranch(push);
+            _logger.LogInformation($"Prepare new push: {branch} from {push.UserUsername}");
             var user = _db.Users.FirstOrDefault(_ => _.GitlabUserName == push.UserUsername);
             var message = string.Empty;
             if (push.After == "0000000000000000000000000000000000000000")
@@ -111,25 +112,28 @@ namespace GitlabTelegramBot.Controllers
 
         public async Task NewMergeRequest(MergeRequest mergeRequest)
         {
+            _logger.LogInformation($"Prepare new merge request: {mergeRequest.Body.Id} action: {mergeRequest.Body.Action} from {mergeRequest.User.Username}");
             var gitlabUsers = new List<String>();
             gitlabUsers.Add(mergeRequest.User.Username);
             if (mergeRequest.Assignee != null && !gitlabUsers.Contains(mergeRequest.Assignee.Username))
             {
                 gitlabUsers.Add(mergeRequest.Assignee.Username);
+                _logger.LogInformation($"Add assignee from merge request: {mergeRequest.Assignee.Username}");
             }
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == mergeRequest.User.Username);
 
             var userName = user != null ? user.TelegramName : mergeRequest.User.Username;
-            var issueUrl = GetRedmineURL(mergeRequest.Body.Title);
+            var redmineURL = GetRedmineURL(mergeRequest.Body.Title);
             var message = string.Empty;
-            if (string.IsNullOrEmpty(issueUrl))
+            if (string.IsNullOrEmpty(redmineURL))
             {
                 message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{mergeRequest.Body.Url}";
             }
             else
             {
-                message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{issueUrl}\n{mergeRequest.Body.Url}";
+                _logger.LogInformation($"Found redmine URL: {redmineURL}");
+                message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{redmineURL}\n{mergeRequest.Body.Url}";
             }
 
             await _bot.SendMessage(users, message);
@@ -137,14 +141,21 @@ namespace GitlabTelegramBot.Controllers
 
         public async Task NewNote(Note note)
         {
+            _logger.LogInformation($"Prepare new note: {note.Body.NoteableId} from {note.User.Username}");
             var gitlabUsers = new List<String>();
-            gitlabUsers.AddRange(GetAllUsers(note.Body.Note));
+            var usersInNote = GetAllUsers(note.Body.Note);
+            if (usersInNote.Count > 0)
+            {
+                _logger.LogInformation($"Found direct call note user: {string.Join(",", usersInNote)}");
+            }
+            gitlabUsers.AddRange(usersInNote);
 
             if (note.MergeRequest.AuthorId.HasValue)
             {
                 var author = (await _gitlab.Users.All()).FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
                 if (author != null && note.User.Username != author.Username && !gitlabUsers.Contains(author.Username))
                 {
+                    _logger.LogInformation($"Add author to note users: {author.Username}");
                     gitlabUsers.Add(author.Username);
                 }
             }
@@ -162,6 +173,7 @@ namespace GitlabTelegramBot.Controllers
             }
             else
             {
+                _logger.LogInformation($"Found redmine URL: {redmineURL}");
                 message = $"@{username}: {note.Body.Note}\n{redmineURL}\n{note.Body.Url}";
             }
             await _bot.SendMessage(users, message);
