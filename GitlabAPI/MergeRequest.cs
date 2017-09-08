@@ -11,5 +11,7 @@ namespace GitlabTelegramBot.GitlabAPI
         public User User { get; set; }
         [JsonProperty("object_attributes")]
         public MergeRequestBody Body { get; set; }
+        [JsonProperty("assignee")]
+        public User Assignee { get; set; }
     }
 }
