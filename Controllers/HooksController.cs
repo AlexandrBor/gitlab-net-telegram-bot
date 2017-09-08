@@ -188,7 +188,7 @@ namespace GitlabTelegramBot.Controllers
             var rgx = new Regex("@\\S+");
             foreach (Match match in rgx.Matches(content))
             {
-                users.Add(match.Value);
+                users.Add(match.Value.Replace("@", string.Empty));
             }
             return users;
         }
