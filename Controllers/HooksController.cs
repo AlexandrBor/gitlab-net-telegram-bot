@@ -139,24 +139,30 @@ namespace GitlabTelegramBot.Controllers
         {
             var gitlabUsers = new List<String>();
             gitlabUsers.AddRange(GetAllUsers(note.Body.Note));
-            if (note.User != null)
+
+            if (note.MergeRequest.AuthorId.HasValue)
             {
-                gitlabUsers.Add(note.User.Username);
+                var author = (await _gitlab.Users.All()).FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
+                if (author != null && note.User.Username != author.Username && !gitlabUsers.Contains(author.Username))
+                {
+                    gitlabUsers.Add(author.Username);
+                }
             }
 
             var redmineURL = GetRedmineURL(note.MergeRequest.Title);
 
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == note.User.Username);
+            var username = user == null ? note.User.Username : user.TelegramName;
             var message = string.Empty;
 
             if (string.IsNullOrEmpty(redmineURL))
             {
-                message = $"@{user?.TelegramName}: {note.Body.Note}\n{note.Body.Url}";
+                message = $"@{username}: {note.Body.Note}\n{note.Body.Url}";
             }
             else
             {
-                message = $"@{user?.TelegramName}: {note.Body.Note}\n{redmineURL}\n{note.Body.Url}";
+                message = $"@{username}: {note.Body.Note}\n{redmineURL}\n{note.Body.Url}";
             }
             await _bot.SendMessage(users, message);
         }
