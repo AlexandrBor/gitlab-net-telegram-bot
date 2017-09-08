@@ -51,8 +51,6 @@ namespace GitlabTelegramBot.GitlabAPI
         public String Url { get; set; }
         [JsonProperty("action")]
         public String Action { get; set; }
-        [JsonProperty("assignee")]
-        public User Assignee { get; set; }
         [JsonProperty("locked_at")]
         public String LockedAt { get; set; }
         [JsonProperty("updated_by_id")]

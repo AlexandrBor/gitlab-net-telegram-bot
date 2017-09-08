@@ -40,24 +40,25 @@ namespace GitlabTelegramBot.Controllers
             {
                 var content = JToken.ReadFrom(jreader);
                 var kind = content.Value<String>("object_kind");
+                var serializer = new JsonSerializer();
                 switch (kind)
                 {
                     case "note":
                         {
 
-                            var note = content.ToObject<Note>();
+                            var note = content.ToObject<Note>(serializer);
                             await NewNote(note);
                             return;
                         }
                     case "push":
                         {
-                            var push = content.ToObject<Push>();
+                            var push = content.ToObject<Push>(serializer);
                             await NewPush(push);
                             return;
                         }
                     case "merge_request":
                         {
-                            var mergeRequest = content.ToObject<MergeRequest>();
+                            var mergeRequest = content.ToObject<MergeRequest>(serializer);
                             await NewMergeRequest(mergeRequest);
                             return;
                         }
@@ -112,15 +113,24 @@ namespace GitlabTelegramBot.Controllers
         {
             var gitlabUsers = new List<String>();
             gitlabUsers.Add(mergeRequest.User.Username);
-            if (mergeRequest.Body.Assignee != null && !gitlabUsers.Contains(mergeRequest.Body.Assignee.Username))
+            if (mergeRequest.Assignee != null && !gitlabUsers.Contains(mergeRequest.Assignee.Username))
             {
-                gitlabUsers.Add(mergeRequest.Body.Assignee.Username);
+                gitlabUsers.Add(mergeRequest.Assignee.Username);
             }
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == mergeRequest.User.Username);
 
+            var userName = user != null ? user.TelegramName : mergeRequest.User.Username;
             var issueUrl = GetRedmineURL(mergeRequest.Body.Title);
-            var message = $"@{user.TelegramName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{issueUrl}\n{mergeRequest.Body.Url}";
+            var message = string.Empty;
+            if (string.IsNullOrEmpty(issueUrl))
+            {
+                message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{mergeRequest.Body.Url}";
+            }
+            else
+            {
+                message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{issueUrl}\n{mergeRequest.Body.Url}";
+            }
 
             await _bot.SendMessage(users, message);
         }
@@ -134,19 +144,20 @@ namespace GitlabTelegramBot.Controllers
                 gitlabUsers.Add(note.User.Username);
             }
 
-            if (note.MergeRequest.AuthorId.HasValue)
-            {
-                var author = (await _gitlab.Users.All()).FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
-                if (author != null && !gitlabUsers.Contains(author.Username))
-                {
-                    gitlabUsers.Add(author.Username);
-                }
-            }
-
             var redmineURL = GetRedmineURL(note.MergeRequest.Title);
+
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == note.User.Username);
-            var message = $"@{user?.TelegramName}: {note.Body.Note}\n{redmineURL}\n{note.Body.Url}";
+            var message = string.Empty;
+
+            if (string.IsNullOrEmpty(redmineURL))
+            {
+                message = $"@{user?.TelegramName}: {note.Body.Note}\n{note.Body.Url}";
+            }
+            else
+            {
+                message = $"@{user?.TelegramName}: {note.Body.Note}\n{redmineURL}\n{note.Body.Url}";
+            }
             await _bot.SendMessage(users, message);
         }
 
@@ -177,7 +188,7 @@ namespace GitlabTelegramBot.Controllers
             var rgx = new Regex("@\\S+");
             foreach (Match match in rgx.Matches(content))
             {
-                users.Add(match.Value);
+                users.Add(match.Value.Replace("@", string.Empty));
             }
             return users;
         }
