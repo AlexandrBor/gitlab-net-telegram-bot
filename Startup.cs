@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace GitlabTelegramBot
 {
@@ -53,6 +54,7 @@ namespace GitlabTelegramBot
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            loggerFactory.AddNLog();
             app.UseMvc();
 
             var accessToken = Configuration.GetSection("TelegramAccessToken")?.Value;
