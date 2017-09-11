@@ -85,6 +85,7 @@ namespace GitlabTelegramBot
                         var text = update.Message.Text;
                         var chatId = update.Message.Chat.Id;
                         var newUser = _newUsers.FirstOrDefault(_ => _.TelegramName == update.Message.Chat.Username);
+                        _logger.LogInformation($"New message from chat: {update.Message.Chat.Id} with user: {update.Message.Chat.Username} text: {update.Message.Text}");
                         if (text == "/start")
                         {
                             await HelpCommand(chatId);
@@ -114,9 +115,11 @@ namespace GitlabTelegramBot
         private async Task RegisterCommand(Message message)
         {
             var chat = message.Chat;
+            _logger.LogInformation($"New request for register from chat: {message.Chat.Id} with user: {message.Chat.Username}");
             if (_context.Users.Any(_ => _.TelegramName == chat.Username))
             {
                 var req = new SendMessage(chat.Id, $"Hello {chat.FirstName} {chat.LastName}. You already registered!");
+                _logger.LogInformation($"Register request is rejected. User with {chat.FirstName} {chat.LastName} already registered");
                 await _bot.MakeRequestAsync(req);
                 return;
             }
@@ -135,11 +138,13 @@ namespace GitlabTelegramBot
                 _newUsers.Remove(newUser);
                 var req = new SendMessage(chat.Id, $"Very well! Now you registered");
                 await _bot.MakeRequestAsync(req);
+                _logger.LogInformation($"Registered new user from chat: {newUser.ChatId} TelegramUserName: {newUser.TelegramName}  GitlabUserName:{newUser.GitlabUserName}");
             }
         }
 
         private async Task UnregisterCommand(Message message)
         {
+            _logger.LogInformation($"New request for unregister from chat: {message.Chat.Id} with user: {message.Chat.Username}");
             var chat = message.Chat;
             var user = _context.Users.FirstOrDefault(_ => _.TelegramName == chat.Username);
             if (user != null)
@@ -148,11 +153,13 @@ namespace GitlabTelegramBot
                 await _context.SaveChangesAsync();
                 var req = new SendMessage(chat.Id, $"{chat.FirstName} {chat.LastName} deleted from bot");
                 await _bot.MakeRequestAsync(req);
+                _logger.LogInformation($"User deleted: Chat: {user.ChatId} TelegramName: {user.TelegramName} GitlabName: {user.GitlabUserName}");
             }
             else
             {
                 var req = new SendMessage(chat.Id, $"You are not registered yet");
                 await _bot.MakeRequestAsync(req);
+                _logger.LogInformation($"Unregister rejected, user not found. Chat: {message.Chat.Id} TelegramUser: {message.Chat.Username}");
             }
         }
 
@@ -172,6 +179,7 @@ namespace GitlabTelegramBot
         {
             foreach (var user in users)
             {
+                _logger.LogInformation($"Send message: '{message}' chat: {user.ChatId} TelegramUser: {user.TelegramName}");
                 await _bot.MakeRequestAsync(new SendMessage(user.ChatId, message));
             }
         }
