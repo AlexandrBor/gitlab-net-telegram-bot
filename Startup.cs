@@ -1,4 +1,5 @@
-﻿using GitlabTelegramBot.DB;
+﻿using System;
+using GitlabTelegramBot.DB;
 using GitlabTelegramBot.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,7 +20,10 @@ namespace GitlabTelegramBot
 
             using (var client = new TelegramBotDBContext())
             {
-                client.Database.EnsureCreated();
+                if (client.Database.EnsureCreated())
+                {
+                    client.Migrate();
+                }
             }
 
 
@@ -33,6 +37,7 @@ namespace GitlabTelegramBot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddEntityFrameworkSqlite().AddDbContext<TelegramBotDBContext>();
+
             services.AddSingleton<ITelegramBot, Bot>();
             services.Configure<GitlabConfig>(options =>
             {
