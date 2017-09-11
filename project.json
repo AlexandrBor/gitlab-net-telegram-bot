@@ -35,9 +35,7 @@
     "buildOptions": {
         "emitEntryPoint": true,
         "preserveCompilationContext": true,
-        "include": [
-            "nlog.config"
-        ]
+        "copyToOutput": { "includeFiles": [ "nlog.config" ] }
     },
 
     "runtimeOptions": {
