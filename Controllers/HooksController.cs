@@ -39,7 +39,7 @@ namespace GitlabTelegramBot.Controllers
             using (var jreader = new JsonTextReader(reader))
             {
                 var content = JToken.ReadFrom(jreader);
-                _logger.LogInformation($"Catched new hook: {content}");
+                _logger.LogInformation($"Catched new hook: {content.ToString()}");
                 var kind = content.Value<String>("object_kind");
                 var serializer = new JsonSerializer();
                 switch (kind)
