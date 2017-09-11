@@ -21,7 +21,8 @@
         "NGitLab": "2.0.0-beta-0065",
         "NLog.Web.AspNetCore": "4.4.1",
         "NLog.Targets.ElasticSearch": "4.0.0-beta21",
-        "NLog.Extensions.Logging": "1.0.0-rtm-beta5"
+        "NLog.Extensions.Logging": "1.0.0-rtm-beta5",
+        "NLog": "5.0.0-beta10"
     },
     "frameworks": {
         "netcoreapp1.0": {

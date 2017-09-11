@@ -1524,7 +1524,7 @@
           "lib/netstandard1.6/NGitLab.dll": {}
         }
       },
-      "NLog/5.0.0-beta07": {
+      "NLog/5.0.0-beta10": {
         "type": "package",
         "dependencies": {
           "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
@@ -1536,17 +1536,15 @@
           "System.Diagnostics.Process": "4.1.0",
           "System.Diagnostics.StackTrace": "4.0.1",
           "System.Diagnostics.TraceSource": "4.0.0",
-          "System.IO.FileSystem.AccessControl": "4.0.0",
           "System.IO.FileSystem.Watcher": "4.0.0",
           "System.Net.NameResolution": "4.0.0",
           "System.Net.Requests": "4.0.11",
           "System.Reflection.TypeExtensions": "4.1.0",
           "System.Runtime.Loader": "4.0.0",
           "System.Runtime.Serialization.Primitives": "4.1.1",
-          "System.Security.AccessControl": "4.0.0",
           "System.Security.Principal": "4.0.1",
+          "System.Security.Principal.Windows": "4.0.0",
           "System.Threading": "4.0.11",
-          "System.Threading.AccessControl": "4.0.0",
           "System.Threading.Thread": "4.0.0",
           "System.Threading.ThreadPool": "4.0.10",
           "System.Xml.ReaderWriter": "4.0.11",
@@ -2444,32 +2442,6 @@
           "ref/netstandard1.3/System.IO.FileSystem.dll": {}
         }
       },
-      "System.IO.FileSystem.AccessControl/4.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.1",
-          "System.IO.FileSystem": "4.0.1",
-          "System.Resources.ResourceManager": "4.0.1",
-          "System.Runtime": "4.1.0",
-          "System.Runtime.Extensions": "4.1.0",
-          "System.Runtime.Handles": "4.0.1",
-          "System.Security.AccessControl": "4.0.0",
-          "System.Security.Principal.Windows": "4.0.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.IO.FileSystem.AccessControl.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/unix/lib/netstandard1.3/System.IO.FileSystem.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "unix"
-          },
-          "runtimes/win/lib/netstandard1.3/System.IO.FileSystem.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
-        }
-      },
       "System.IO.FileSystem.Primitives/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3214,35 +3186,6 @@
           "lib/netstandard1.3/System.Runtime.Serialization.Primitives.dll": {}
         }
       },
-      "System.Security.AccessControl/4.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.1",
-          "System.Collections": "4.0.11",
-          "System.Globalization": "4.0.11",
-          "System.Reflection": "4.1.0",
-          "System.Resources.ResourceManager": "4.0.1",
-          "System.Runtime": "4.1.0",
-          "System.Runtime.Handles": "4.0.1",
-          "System.Runtime.InteropServices": "4.1.0",
-          "System.Security.Principal.Windows": "4.0.0",
-          "System.Threading": "4.0.11",
-          "System.Threading.Thread": "4.0.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Security.AccessControl.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/unix/lib/netstandard1.3/System.Security.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "unix"
-          },
-          "runtimes/win/lib/netstandard1.3/System.Security.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
-        }
-      },
       "System.Security.Claims/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3627,31 +3570,6 @@
         },
         "runtime": {
           "lib/netstandard1.3/System.Threading.dll": {}
-        }
-      },
-      "System.Threading.AccessControl/4.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.1",
-          "System.Resources.ResourceManager": "4.0.1",
-          "System.Runtime": "4.1.0",
-          "System.Runtime.Handles": "4.0.1",
-          "System.Security.AccessControl": "4.0.0",
-          "System.Security.Principal.Windows": "4.0.0",
-          "System.Threading": "4.0.11"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Threading.AccessControl.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/unix/lib/netstandard1.3/System.Threading.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "unix"
-          },
-          "runtimes/win/lib/netstandard1.3/System.Threading.AccessControl.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
         }
       },
       "System.Threading.Overlapped/4.3.0": {
@@ -5231,13 +5149,11 @@
         "lib/netstandard1.6/NGitLab.xml"
       ]
     },
-    "NLog/5.0.0-beta07": {
-      "sha512": "TQYyCV1pE/+SiW6Slp9DWkyUfEvFgL6GxLS3VvUbVwRSV4vfIgaS5Mn4wzJ+RmkF6qWDb2t7DNr/TjRTDrKCpg==",
+    "NLog/5.0.0-beta10": {
+      "sha512": "/FNcTJ7QXmFTVf/g+fEQ3QCIFc/glnUmn+dSWlpxhQmS9nq69+RfQeb6pArJJ4FOGq6pUM7WfOa6wUI82oKpAQ==",
       "type": "package",
-      "path": "NLog/5.0.0-beta07",
+      "path": "NLog/5.0.0-beta10",
       "files": [
-        "NLog.5.0.0-beta07.nupkg.sha512",
-        "NLog.nuspec",
         "lib/monoandroid23/NLog.dll",
         "lib/monoandroid23/NLog.xml",
         "lib/net35/NLog.dll",
@@ -5259,7 +5175,9 @@
         "lib/wp80/NLog.dll",
         "lib/wp80/NLog.xml",
         "lib/xamarinios10/NLog.dll",
-        "lib/xamarinios10/NLog.xml"
+        "lib/xamarinios10/NLog.xml",
+        "nlog.5.0.0-beta10.nupkg.sha512",
+        "nlog.nuspec"
       ]
     },
     "NLog.Extensions.Logging/1.0.0-rtm-beta5": {
@@ -7045,34 +6963,6 @@
         "ref/xamarinmac20/_._",
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
-      ]
-    },
-    "System.IO.FileSystem.AccessControl/4.0.0": {
-      "sha512": "I80oVypfOvG0y0D8d0/0X/RIcAbJaFkTToy9sRJdVDVIAEImgMBEmSxxs8XpCP0PByWhOpxjRjcaGHdvNTbIUg==",
-      "type": "package",
-      "path": "System.IO.FileSystem.AccessControl/4.0.0",
-      "files": [
-        "System.IO.FileSystem.AccessControl.4.0.0.nupkg.sha512",
-        "System.IO.FileSystem.AccessControl.nuspec",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "lib/net46/System.IO.FileSystem.AccessControl.dll",
-        "ref/net46/System.IO.FileSystem.AccessControl.dll",
-        "ref/netstandard1.3/System.IO.FileSystem.AccessControl.dll",
-        "ref/netstandard1.3/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/de/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/es/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/fr/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/it/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/ja/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/ko/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/ru/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/zh-hans/System.IO.FileSystem.AccessControl.xml",
-        "ref/netstandard1.3/zh-hant/System.IO.FileSystem.AccessControl.xml",
-        "runtimes/unix/lib/netstandard1.3/System.IO.FileSystem.AccessControl.dll",
-        "runtimes/win/lib/net46/System.IO.FileSystem.AccessControl.dll",
-        "runtimes/win/lib/netcore50/_._",
-        "runtimes/win/lib/netstandard1.3/System.IO.FileSystem.AccessControl.dll"
       ]
     },
     "System.IO.FileSystem.Primitives/4.3.0": {
@@ -9000,34 +8890,6 @@
         "runtimes/aot/lib/netcore50/System.Runtime.Serialization.Primitives.dll"
       ]
     },
-    "System.Security.AccessControl/4.0.0": {
-      "sha512": "xsTykIpBOWK9q3XLrnvE7WoWtCQ4DKvGliAJ13uzsN8qIwMuYMEuSNXxdJsygYA+AM3dVJUjDbgPwZgOvp1gGQ==",
-      "type": "package",
-      "path": "System.Security.AccessControl/4.0.0",
-      "files": [
-        "System.Security.AccessControl.4.0.0.nupkg.sha512",
-        "System.Security.AccessControl.nuspec",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "lib/net46/System.Security.AccessControl.dll",
-        "ref/net46/System.Security.AccessControl.dll",
-        "ref/netstandard1.3/System.Security.AccessControl.dll",
-        "ref/netstandard1.3/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/de/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/es/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/fr/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/it/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/ja/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/ko/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/ru/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/zh-hans/System.Security.AccessControl.xml",
-        "ref/netstandard1.3/zh-hant/System.Security.AccessControl.xml",
-        "runtimes/unix/lib/netstandard1.3/System.Security.AccessControl.dll",
-        "runtimes/win/lib/net46/System.Security.AccessControl.dll",
-        "runtimes/win/lib/netcore50/_._",
-        "runtimes/win/lib/netstandard1.3/System.Security.AccessControl.dll"
-      ]
-    },
     "System.Security.Claims/4.3.0": {
       "sha512": "P/+BR/2lnc4PNDHt/TPBAWHVMLMRHsyYZbU1NphW4HIWzCggz8mJbTQQ3MKljFE7LS3WagmVFuBgoLcFzYXlkA==",
       "type": "package",
@@ -9711,34 +9573,6 @@
         "system.threading.nuspec"
       ]
     },
-    "System.Threading.AccessControl/4.0.0": {
-      "sha512": "s9XhOgYcI0KsoLXEs78nXhK+S/l79tJeZzBEthpYyFLPW362ksFrVkDONrGsMLCZXPZl0uwk5nSTLhAdbJuXfA==",
-      "type": "package",
-      "path": "System.Threading.AccessControl/4.0.0",
-      "files": [
-        "System.Threading.AccessControl.4.0.0.nupkg.sha512",
-        "System.Threading.AccessControl.nuspec",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "lib/net46/System.Threading.AccessControl.dll",
-        "ref/net46/System.Threading.AccessControl.dll",
-        "ref/netstandard1.3/System.Threading.AccessControl.dll",
-        "ref/netstandard1.3/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/de/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/es/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/fr/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/it/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/ja/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/ko/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/ru/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/zh-hans/System.Threading.AccessControl.xml",
-        "ref/netstandard1.3/zh-hant/System.Threading.AccessControl.xml",
-        "runtimes/unix/lib/netstandard1.3/System.Threading.AccessControl.dll",
-        "runtimes/win/lib/net46/System.Threading.AccessControl.dll",
-        "runtimes/win/lib/netcore50/_._",
-        "runtimes/win/lib/netstandard1.3/System.Threading.AccessControl.dll"
-      ]
-    },
     "System.Threading.Overlapped/4.3.0": {
       "sha512": "m3HQ2dPiX/DSTpf+yJt8B0c+SRvzfqAJKx+QDWi+VLhz8svLT23MVjEOHPF/KiSLeArKU/iHescrbLd3yVgyNg==",
       "type": "package",
@@ -10329,6 +10163,7 @@
       "Microsoft.Extensions.Options.ConfigurationExtensions >= 1.1.2",
       "Microsoft.NETCore.App >= 1.0.1",
       "NGitLab >= 2.0.0-beta-0065",
+      "NLog >= 5.0.0-beta10",
       "NLog.Extensions.Logging >= 1.0.0-rtm-beta5",
       "NLog.Targets.ElasticSearch >= 4.0.0-beta21",
       "NLog.Web.AspNetCore >= 4.4.1",
