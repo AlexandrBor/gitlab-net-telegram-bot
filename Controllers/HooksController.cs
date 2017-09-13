@@ -34,35 +34,42 @@ namespace GitlabTelegramBot.Controllers
         [HttpPost]
         public async Task CatchHook()
         {
-            var body = HttpContext.Request.Body;
-            using (var reader = new StreamReader(body))
-            using (var jreader = new JsonTextReader(reader))
+            try
             {
-                var content = JToken.ReadFrom(jreader);
-                _logger.LogInformation($"Catched new hook: {content.ToString()}");
-                var kind = content.Value<String>("object_kind");
-                var serializer = new JsonSerializer();
-                switch (kind)
+                var body = HttpContext.Request.Body;
+                using (var reader = new StreamReader(body))
+                using (var jreader = new JsonTextReader(reader))
                 {
-                    case "note":
-                        {
-                            var note = content.ToObject<Note>(serializer);
-                            await NewNote(note);
-                            return;
-                        }
-                    case "push":
-                        {
-                            var push = content.ToObject<Push>(serializer);
-                            await NewPush(push);
-                            return;
-                        }
-                    case "merge_request":
-                        {
-                            var mergeRequest = content.ToObject<MergeRequest>(serializer);
-                            await NewMergeRequest(mergeRequest);
-                            return;
-                        }
-                };
+                    var content = JToken.ReadFrom(jreader);
+                    _logger.LogInformation($"Catched new hook: {content.ToString()}");
+                    var kind = content.Value<String>("object_kind");
+                    var serializer = new JsonSerializer();
+                    switch (kind)
+                    {
+                        case "note":
+                            {
+                                var note = content.ToObject<Note>(serializer);
+                                await NewNote(note);
+                                return;
+                            }
+                        case "push":
+                            {
+                                var push = content.ToObject<Push>(serializer);
+                                await NewPush(push);
+                                return;
+                            }
+                        case "merge_request":
+                            {
+                                var mergeRequest = content.ToObject<MergeRequest>(serializer);
+                                await NewMergeRequest(mergeRequest);
+                                return;
+                            }
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(new EventId(), e, "Unhandled error");
             }
         }
 
