@@ -157,13 +157,25 @@ namespace GitlabTelegramBot.Controllers
             }
             gitlabUsers.AddRange(usersInNote);
 
+            var allGitlabUsers = await _gitlab.Users.All();
+
             if (note.MergeRequest.AuthorId.HasValue)
             {
-                var author = (await _gitlab.Users.All()).FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
+                var author = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
                 if (author != null && note.User.Username != author.Username && !gitlabUsers.Contains(author.Username))
                 {
                     _logger.LogInformation($"Add author to note users: {author.Username}");
                     gitlabUsers.Add(author.Username);
+                }
+            }
+
+            if(note.MergeRequest.AssigneeId.HasValue)
+            {
+                var assignee = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AssigneeId.Value);
+                if(assignee != null && note.User.Username != assignee.Username && !gitlabUsers.Contains(assignee.Username))
+                {
+                    _logger.LogInformation($"Add assignee to note users: {assignee.Username}");
+                    gitlabUsers.Add(assignee.Username);
                 }
             }
 
