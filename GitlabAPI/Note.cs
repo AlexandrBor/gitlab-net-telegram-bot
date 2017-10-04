@@ -19,5 +19,7 @@ namespace GitlabTelegramBot.GitlabAPI
         public Repository Repository { get; set; }
         [JsonProperty("merge_request")]
         public MergeRequestBody MergeRequest { get; set; }
+        [JsonProperty("commit")]
+        public Commit Commit { get; set; }
     }
 }

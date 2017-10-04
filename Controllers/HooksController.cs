@@ -157,6 +157,7 @@ namespace GitlabTelegramBot.Controllers
         {
             _logger.LogInformation($"Prepare new note: {note.Body.NoteableId} from {note.User.Username}");
             var gitlabUsers = new List<String>();
+            string redmineURL = string.Empty;
             var usersInNote = GetAllUsers(note.Body.Note);
             if (usersInNote.Count > 0)
             {
@@ -166,27 +167,37 @@ namespace GitlabTelegramBot.Controllers
 
             var allGitlabUsers = await _gitlab.Users.All();
 
-            if (note.MergeRequest.AuthorId.HasValue)
+            if (note.MergeRequest != null)
             {
-                var author = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
-                if (author != null && note.User.Username != author.Username && !gitlabUsers.Contains(author.Username))
+                if (note.MergeRequest.AuthorId.HasValue)
                 {
-                    _logger.LogInformation($"Add author to note users: {author.Username}");
+                    var author = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AuthorId.Value);
+                    if (author != null && note.User.Username != author.Username && !gitlabUsers.Contains(author.Username))
+                    {
+                        _logger.LogInformation($"Add author to note users: {author.Username}");
+                        gitlabUsers.Add(author.Username);
+                    }
+                }
+                if (note.MergeRequest.AssigneeId.HasValue)
+                {
+                    var assignee = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AssigneeId.Value);
+                    if (assignee != null && note.User.Username != assignee.Username && !gitlabUsers.Contains(assignee.Username))
+                    {
+                        _logger.LogInformation($"Add assignee to note users: {assignee.Username}");
+                        gitlabUsers.Add(assignee.Username);
+                    }
+                }
+                redmineURL = GetRedmineURL(note.MergeRequest.Title);
+            }
+            else if (note.Commit != null && note.Commit.Author != null)
+            {
+                var author = allGitlabUsers.FirstOrDefault(_ => _.Email.ToUpper() == note.Commit.Author.Email.ToUpper());
+                if(author != null)
+                {
+                    _logger.LogInformation($"Add commit author to note users: {author.Username}");
                     gitlabUsers.Add(author.Username);
                 }
             }
-
-            if (note.MergeRequest.AssigneeId.HasValue)
-            {
-                var assignee = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AssigneeId.Value);
-                if (assignee != null && note.User.Username != assignee.Username && !gitlabUsers.Contains(assignee.Username))
-                {
-                    _logger.LogInformation($"Add assignee to note users: {assignee.Username}");
-                    gitlabUsers.Add(assignee.Username);
-                }
-            }
-
-            var redmineURL = GetRedmineURL(note.MergeRequest.Title);
 
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == note.User.Username);
