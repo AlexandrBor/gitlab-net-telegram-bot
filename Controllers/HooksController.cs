@@ -127,6 +127,13 @@ namespace GitlabTelegramBot.Controllers
                 gitlabUsers.Add(mergeRequest.Assignee.Username);
                 _logger.LogInformation($"Add assignee from merge request: {mergeRequest.Assignee.Username}");
             }
+
+            if (mergeRequest.Body.Action.ToUpper() == "MERGE" && mergeRequest.User != null)
+            {
+                gitlabUsers.Add(mergeRequest.User.Username);
+                _logger.LogInformation($"Add author of merge request: {mergeRequest.User.Username}");
+            }
+
             var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == mergeRequest.User.Username);
 
@@ -169,10 +176,10 @@ namespace GitlabTelegramBot.Controllers
                 }
             }
 
-            if(note.MergeRequest.AssigneeId.HasValue)
+            if (note.MergeRequest.AssigneeId.HasValue)
             {
                 var assignee = allGitlabUsers.FirstOrDefault(_ => _.Id == note.MergeRequest.AssigneeId.Value);
-                if(assignee != null && note.User.Username != assignee.Username && !gitlabUsers.Contains(assignee.Username))
+                if (assignee != null && note.User.Username != assignee.Username && !gitlabUsers.Contains(assignee.Username))
                 {
                     _logger.LogInformation($"Add assignee to note users: {assignee.Username}");
                     gitlabUsers.Add(assignee.Username);
