@@ -192,7 +192,7 @@ namespace GitlabTelegramBot.Controllers
             else if (note.Commit != null && note.Commit.Author != null)
             {
                 var author = allGitlabUsers.FirstOrDefault(_ => _.Email.ToUpper() == note.Commit.Author.Email.ToUpper());
-                if(author != null)
+                if (author != null && author.Username != note.User.Username)
                 {
                     _logger.LogInformation($"Add commit author to note users: {author.Username}");
                     gitlabUsers.Add(author.Username);
