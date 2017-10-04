@@ -26,7 +26,7 @@ namespace GitlabTelegramBot.GitlabAPI
         [JsonProperty("commit_id")]
         public String CommitId { get; set; }
         [JsonProperty("noteable_id")]
-        public Int32 NoteableId { get; set; }
+        public Int32? NoteableId { get; set; }
         [JsonProperty("system")]
         public Boolean System { get; set; }
         [JsonProperty("st_diff")]
