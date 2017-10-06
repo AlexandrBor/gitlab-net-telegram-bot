@@ -177,10 +177,17 @@ namespace GitlabTelegramBot
 
         public async Task SendMessage(IEnumerable<TelegramBotUser> users, string message)
         {
-            foreach (var user in users)
+            try
             {
-                _logger.LogInformation($"Send message: '{message}' chat: {user.ChatId} TelegramUser: {user.TelegramName}");
-                await _bot.MakeRequestAsync(new SendMessage(user.ChatId, message));
+                foreach (var user in users)
+                {
+                    _logger.LogInformation($"Send message: '{message}' chat: {user.ChatId} TelegramUser: {user.TelegramName}");
+                    await _bot.MakeRequestAsync(new SendMessage(user.ChatId, message));
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error in sending message from bot", e);
             }
         }
 
