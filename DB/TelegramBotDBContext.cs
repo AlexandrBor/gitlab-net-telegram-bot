@@ -23,7 +23,7 @@ namespace GitlabTelegramBot.DB
                 new TelegramBotUser() { ChatId = 93020512, GitlabUserName = "HolodnovJeJe", TelegramName = "HolodnovJeJe"},
                 new TelegramBotUser() { ChatId = 400611109, GitlabUserName = "GazimullinDM", TelegramName = "GazimullinDM" },
                 new TelegramBotUser() { ChatId = 122671309, GitlabUserName = "kovalevasr", TelegramName = "jam_of_sweet" },
-                new TelegramBotUser() { ChatId = 202868276, GitlabUserName = "BashirovIA", TelegramName = "Bashirov_Ildar" }
+                new TelegramBotUser() { ChatId = 202868276, GitlabUserName = "bashirovia", TelegramName = "Bashirov_Ildar" }
             };
 
             Users.AddRange(users);
