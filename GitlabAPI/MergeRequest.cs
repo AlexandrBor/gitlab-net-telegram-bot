@@ -13,5 +13,7 @@ namespace GitlabTelegramBot.GitlabAPI
         public MergeRequestBody Body { get; set; }
         [JsonProperty("assignee")]
         public User Assignee { get; set; }
+        [JsonProperty("labels")]
+        public Label[] Labels { get; set; }
     }
 }
