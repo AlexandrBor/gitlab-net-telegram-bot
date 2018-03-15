@@ -1,5 +1,5 @@
-﻿using System;
-using GitlabTelegramBot.DB;
+﻿using GitlabTelegramBot.DB;
+using GitlabTelegramBot.MessageQueue;
 using GitlabTelegramBot.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,6 +41,7 @@ namespace GitlabTelegramBot
             services.AddEntityFrameworkSqlite().AddDbContext<TelegramBotDBContext>();
 
             services.AddSingleton<ITelegramBot, Bot>();
+            services.AddSingleton<IMessagesQueue, MessagesQueue>();
             services.Configure<GitlabConfig>(options =>
             {
                 options.Host = Configuration.GetSection("GitlabHost")?.Value;
@@ -51,7 +52,7 @@ namespace GitlabTelegramBot
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITelegramBot bot)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ITelegramBot bot, IMessagesQueue messagesQueue)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -65,6 +66,8 @@ namespace GitlabTelegramBot
             var botname = Configuration.GetSection("TelegramBotName")?.Value;
             bot.Connect(accessToken, botname);
             bot.Start();
+
+            messagesQueue.Start();
         }
     }
 }

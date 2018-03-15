@@ -18,12 +18,11 @@ namespace GitlabTelegramBot
 {
     public class Bot : ITelegramBot
     {
-        public Bot(ILogger<Bot> logger, TelegramBotDBContext context, IOptions<GitlabConfig> gitlabConfig)
+        public Bot(ILogger<Bot> logger, TelegramBotDBContext context)
         {
             _logger = logger;
             _context = context;
             _newUsers = new List<TelegramBotUser>();
-            _gitlab = new GitLabClient(gitlabConfig.Value.Host, gitlabConfig.Value.Token);
         }
 
         public void Connect(string accessToken, string name)
