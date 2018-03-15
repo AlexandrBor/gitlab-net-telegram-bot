@@ -145,12 +145,20 @@ namespace GitlabTelegramBot.MessageQueue
                 _logger.LogInformation($"Add author of merge request: {mergeRequest.User.Username}");
             }
 
-            var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToArray();
+            var users = _db.Users.Where(_ => gitlabUsers.Contains(_.GitlabUserName)).ToList();
             var user = users.FirstOrDefault(_ => _.GitlabUserName == mergeRequest.User.Username);
             var assignee = users.FirstOrDefault(_ => _.GitlabUserName == mergeRequest.Assignee.Username);
 
+            var author = (await  _gitlab.Users.All()).FirstOrDefault(_ => _.Id == mergeRequest.Body.AuthorId);
+            var authorDB = author != null ? _db.Users.FirstOrDefault(_ => _.GitlabUserName == author.Username) : null;
+            if (authorDB != null && !users.Contains(authorDB))
+            {
+                users.Add(authorDB);
+            }
+
             var userName = user != null ? user.TelegramName : mergeRequest.User.Username;
             var assigneeName = assignee != null ? assignee.TelegramName : mergeRequest.Assignee.Name;
+            var authorName = authorDB != null ? authorDB.TelegramName : userName;
             var redmineURL = GetRedmineURL(mergeRequest.Body.Title);
             var message = string.Empty;
             if (string.IsNullOrEmpty(redmineURL))
@@ -162,18 +170,30 @@ namespace GitlabTelegramBot.MessageQueue
                     {
                         sb.AppendLine($"Label: {label.Title}");
                     }
-                    message = $"@{userName} @{assigneeName}\r\nProject: {mergeRequest.Body.Source.Name}\r\n{sb.ToString()}{mergeRequest.Body.Url}";
+                    message = $"@{authorName} @{assigneeName}\r\nProject: {mergeRequest.Body.Source.Name}\r\n{sb.ToString()}{mergeRequest.Body.Url}";
                 }
-
                 else
                 {
-                    message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{mergeRequest.Body.Url}";
+                    message = $"@{authorName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{mergeRequest.Body.Url}";
                 }
             }
             else
             {
                 _logger.LogInformation($"Found redmine URL: {redmineURL}");
-                message = $"@{userName} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{redmineURL}\n{mergeRequest.Body.Url}";
+
+                if (mergeRequest.Body.Action == "update" && mergeRequest.Labels.Length > 0)
+                {
+                    var sb = new StringBuilder();
+                    foreach (var label in mergeRequest.Labels)
+                    {
+                        sb.AppendLine($"Label: {label.Title}");
+                    }
+                    message = $"@{authorName} @{assigneeName}\r\nProject: {mergeRequest.Body.Source.Name}\r\n{sb.ToString()}{redmineURL}\r\n{mergeRequest.Body.Url}";
+                }
+                else
+                {
+                    message = $"@{userName}\r\nProject: {mergeRequest.Body.Source.Name} {mergeRequest.Body.Action} merge request\n{mergeRequest.Body.Title}\n{redmineURL}\n{mergeRequest.Body.Url}";
+                }
             }
 
             await _bot.SendMessage(users, message);
