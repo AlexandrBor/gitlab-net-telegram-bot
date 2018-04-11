@@ -16,7 +16,6 @@ namespace GitlabTelegramBot.DB
         {
             var users = new List<TelegramBotUser>()
             {
-                new TelegramBotUser() { ChatId = 53290057, GitlabUserName = "RamazanovAR", TelegramName = "RamazanovAnvar"},
                 new TelegramBotUser() { ChatId = 149901166, GitlabUserName = "MiryanovSN", TelegramName = "zzzzzzerg"},
                 new TelegramBotUser() { ChatId = 103469385, GitlabUserName = "alyokhinaa", TelegramName = "zzanderss"},
                 new TelegramBotUser() { ChatId = 293361925, GitlabUserName = "NugumanovDM", TelegramName = "hant111"},
