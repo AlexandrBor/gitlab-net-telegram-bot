@@ -25,3 +25,6 @@ Source/EXTERNAL/**
 ProfileReports
 
 .idea
+
+bin/**
+obj/**
