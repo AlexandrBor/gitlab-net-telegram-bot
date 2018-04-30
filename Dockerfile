@@ -1,7 +1,6 @@
-FROM microsoft/dotnet:1.0.5-sdk 
+FROM microsoft/dotnet:2.0-sdk 
 COPY . /src/app 
 WORKDIR /src/app 
-RUN ["dotnet", "migrate"]
 RUN ["dotnet", "restore"]
 RUN ["dotnet", "build"]
 EXPOSE 60002/tcp
