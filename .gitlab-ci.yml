@@ -1,0 +1,19 @@
+
+before_script:
+  - "chcp 65001"
+
+stages:
+  - deploy-bot
+
+
+deploy-bot:
+  before_script:
+    - echo deploy-bot...
+  stage: deploy-bot
+  tags:
+   - docker
+  script:
+    - docker build -t gitlab-net-telegram-bot .
+    - docker stop gitlab-net-telegram-bot && docker rm gitlab-net-telegram-bot
+    - docker run --name gitlab-net-telegram-bot -d -p 60002:60002 gitlab-net-telegram-bot
+

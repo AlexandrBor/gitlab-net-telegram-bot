@@ -28,7 +28,6 @@ namespace GitlabTelegramBot
                 }
             }
 
-
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -48,6 +47,9 @@ namespace GitlabTelegramBot
                 options.Token = Configuration.GetSection("GitlabToken")?.Value;
                 options.Admin = Configuration.GetSection("GitlabAdmin")?.Value;
             });
+
+            services.Configure<ProxiesConfig>(Configuration.GetSection("Proxies"));
+
             services.AddMvc();
         }
 
