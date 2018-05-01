@@ -57,20 +57,17 @@ namespace GitlabTelegramBot
             _context = context;
             _newUsers = new List<TelegramBotUser>();
             _config = proxyConfig.Value;
+            _cts = new CancellationTokenSource();
         }
 
         public void Connect(string accessToken, string name)
         {
             if (accessToken != null)
             {
+                _accessToken = accessToken;
                 _botName = name;
-                _logger.LogInformation($"Connected TelegramBot {name} with token: {accessToken}");
+                _logger.LogInformation($"Connected TelegramBot {_botName} with token: {_accessToken}");
                 _bot = new CustomTelegramBot(accessToken, _config);
-                _cts = new CancellationTokenSource();
-                if (!CheckConnect().Result)
-                {
-                    _cts.Cancel();
-                }
             }
             else
             {
@@ -83,11 +80,11 @@ namespace GitlabTelegramBot
             var me = await _bot.MakeRequestAsync(new GetMe());
             if (me != null)
             {
-                _logger.LogInformation("{0} (@{1}) connected!", me.FirstName, me.Username);
+                _logger.LogTrace("{0} (@{1}) connected!", me.FirstName, me.Username);
                 return true;
             }
 
-            _logger.LogInformation("Bot connected failed!");
+            _logger.LogError("Bot connected failed!");
             return false;
         }
 
@@ -102,6 +99,7 @@ namespace GitlabTelegramBot
             if (_cts != null)
             {
                 _cts.Cancel();
+                _logger.LogInformation("TelegramBot stop listening");
             }
         }
 
@@ -110,6 +108,12 @@ namespace GitlabTelegramBot
             long offset = 0;
             while (!_cts.IsCancellationRequested)
             {
+                //await Task.Delay(100);
+                if(false == await CheckConnect())
+                {
+                    continue;
+                }
+
                 var updates = await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
                 if (updates != null)
                 {
@@ -212,6 +216,27 @@ namespace GitlabTelegramBot
         {
             try
             {
+                var connected = false;
+                var maxRetry = 50;
+                for(var idx = 0; idx < maxRetry; ++idx)
+                {
+                    connected = await CheckConnect();
+                    if(false == connected)
+                    {
+                        _logger.LogInformation($"Tried to connect: {idx}/{maxRetry}");
+                        //await Task.Delay(100);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if(connected == false)
+                {
+                    _logger.LogError($"Can't connect to send message: '{message}'");
+                    return;
+                }
+
                 foreach (var user in users)
                 {
                     _logger.LogInformation($"Send message: '{message}' chat: {user.ChatId} TelegramUser: {user.TelegramName}");
@@ -273,5 +298,6 @@ namespace GitlabTelegramBot
         private TelegramBot _bot;
         private CancellationTokenSource _cts;
         private string _botName;
+        private string _accessToken;
     }
 }
