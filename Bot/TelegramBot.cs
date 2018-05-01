@@ -21,20 +21,43 @@ namespace GitlabTelegramBot
 {
     public class CustomTelegramBot : TelegramBot
     {
-        public CustomTelegramBot(String accessToken, ProxyConfig config)
+        public Int32 ProxyIndex
+        {
+            get => _proxyIndex;
+            set
+            {
+                _proxyIndex = value;
+                if (_proxyIndex >= _config.Proxies.Length)
+                    _proxyIndex = 0;
+            }
+        }
+
+        public ProxyConfig Proxy
+        {
+            get { return _config.Proxies[ProxyIndex]; }
+        }
+
+        public CustomTelegramBot(String accessToken, ProxiesConfig config)
         : base(accessToken)
         {
             _config = config;
+            ProxyIndex = 0;
         }
 
         protected override HttpClientHandler MakeHttpMessageHandler()
         {
-            if(_config.Enabled)
+            var config = _config.Proxies[ProxyIndex];
+
+            if (config.Enabled)
             {
-                var sp = new Socks5ProxyClient(_config.Host,
-                    _config.Port,
-                    _config.UserName,
-                    _config.Password);
+                var sp = new Socks5ProxyClient(config.Host,
+                    config.Port,
+                    config.UserName,
+                    config.Password)
+                {
+                    ConnectTimeout = 5000,
+                    ReadWriteTimeout = 1000
+                };
 
                 return new ProxyHandler(sp);
             }
@@ -44,14 +67,15 @@ namespace GitlabTelegramBot
             }
         }
 
-        private readonly ProxyConfig _config;
+        private readonly ProxiesConfig _config;
+        private int _proxyIndex;
     }
 
     public class Bot : ITelegramBot
     {
         public Bot(ILogger<Bot> logger,
             TelegramBotDBContext context,
-            IOptions<ProxyConfig> proxyConfig)
+            IOptions<ProxiesConfig> proxyConfig)
         {
             _logger = logger;
             _context = context;
@@ -77,21 +101,39 @@ namespace GitlabTelegramBot
 
         private async Task<Boolean> CheckConnect()
         {
-            var me = await _bot.MakeRequestAsync(new GetMe());
-            if (me != null)
+            try
             {
-                _logger.LogTrace("{0} (@{1}) connected!", me.FirstName, me.Username);
-                return true;
-            }
+                var me = await _bot.MakeRequestAsync(new GetMe());
+                if (me != null)
+                {
+                    _logger.LogTrace("{0} (@{1}) connected (proxy: {2})!", me.FirstName, me.Username, _bot.Proxy);
+                    return true;
+                }
 
-            _logger.LogError("Bot connected failed!");
-            return false;
+                _logger.LogError($"Bot connected failed! (proxy: {_bot.Proxy})");
+                return false;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Bot connected failed, exception! (proxy: {_bot.Proxy})", e);
+                return false;
+            }
         }
 
         public void Start()
         {
             _logger.LogInformation("TelegramBot start listening");
-            Task.Factory.StartNew(() => Listening(), TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    await Listening();
+                }
+                finally
+                {
+                    _logger.LogInformation("Stop listening");
+                }
+            }, TaskCreationOptions.LongRunning);
         }
 
         public void Stop()
@@ -108,43 +150,54 @@ namespace GitlabTelegramBot
             long offset = 0;
             while (!_cts.IsCancellationRequested)
             {
-                //await Task.Delay(100);
-                if(false == await CheckConnect())
+                try
                 {
-                    continue;
-                }
-
-                var updates = await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
-                if (updates != null)
-                {
-                    foreach (var update in updates)
+                    await Task.Delay(100);
+                    if (false == await CheckConnect())
                     {
-                        var text = update.Message.Text;
-                        var chatId = update.Message.Chat.Id;
-                        var newUser = _newUsers.FirstOrDefault(_ => _.TelegramName == update.Message.Chat.Username);
-                        _logger.LogInformation($"New message from chat: {update.Message.Chat.Id} with user: {update.Message.Chat.Username} text: {update.Message.Text}");
-                        if (text == "/start")
-                        {
-                            await HelpCommand(chatId);
-                        }
-                        else if (text == "/register" || (newUser != null && !newUser.IsRegistered()))
-                        {
-                            await RegisterCommand(update.Message);
-                        }
-                        else if (text == "/help")
-                        {
-                            await HelpCommand(chatId);
-                        }
-                        else if (text == "/stop")
-                        {
-                            await UnregisterCommand(update.Message);
-                        }
-                        else if (update.Message.ReplyToMessage != null && update.Message.ReplyToMessage.From.Username == _botName)
-                        {
-                            await ReplyToMessage(update.Message);
-                        }
-                        offset = update.UpdateId + 1;
+                        _bot.ProxyIndex += 1;
+                        await Task.Delay(500);
+
+                        continue;
                     }
+
+                    var updates = await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
+                    if (updates != null)
+                    {
+                        foreach (var update in updates)
+                        {
+                            var text = update.Message.Text;
+                            var chatId = update.Message.Chat.Id;
+                            var newUser = _newUsers.FirstOrDefault(_ => _.TelegramName == update.Message.Chat.Username);
+                            _logger.LogInformation($"New message from chat: {update.Message.Chat.Id} with user: {update.Message.Chat.Username} text: {update.Message.Text}");
+                            if (text == "/start")
+                            {
+                                await HelpCommand(chatId);
+                            }
+                            else if (text == "/register" || (newUser != null && !newUser.IsRegistered()))
+                            {
+                                await RegisterCommand(update.Message);
+                            }
+                            else if (text == "/help")
+                            {
+                                await HelpCommand(chatId);
+                            }
+                            else if (text == "/stop")
+                            {
+                                await UnregisterCommand(update.Message);
+                            }
+                            else if (update.Message.ReplyToMessage != null && update.Message.ReplyToMessage.From.Username == _botName)
+                            {
+                                await ReplyToMessage(update.Message);
+                            }
+                            offset = update.UpdateId + 1;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Error occured while listening telegram (proxy: {_bot.Proxy})", e);
+                    _bot.ProxyIndex += 1;
                 }
             }
         }
@@ -223,8 +276,9 @@ namespace GitlabTelegramBot
                     connected = await CheckConnect();
                     if(false == connected)
                     {
+                        _bot.ProxyIndex += 1;
                         _logger.LogInformation($"Tried to connect: {idx}/{maxRetry}");
-                        //await Task.Delay(100);
+                        await Task.Delay(100);
                     }
                     else
                     {
@@ -245,7 +299,7 @@ namespace GitlabTelegramBot
             }
             catch (Exception e)
             {
-                _logger.LogError("Error in sending message from bot", e);
+                _logger.LogError($"Error in sending message from bot (proxy: {_bot.Proxy})", e);
             }
         }
 
@@ -293,9 +347,9 @@ namespace GitlabTelegramBot
         private readonly ILogger<Bot> _logger;
         private readonly TelegramBotDBContext _context;
         private readonly GitLabClient _gitlab;
-        private readonly ProxyConfig _config;
+        private readonly ProxiesConfig _config;
 
-        private TelegramBot _bot;
+        private CustomTelegramBot _bot;
         private CancellationTokenSource _cts;
         private string _botName;
         private string _accessToken;

@@ -48,7 +48,7 @@ namespace GitlabTelegramBot
                 options.Admin = Configuration.GetSection("GitlabAdmin")?.Value;
             });
 
-            services.Configure<ProxyConfig>(Configuration.GetSection("Proxy"));
+            services.Configure<ProxiesConfig>(Configuration.GetSection("Proxies"));
 
             services.AddMvc();
         }
