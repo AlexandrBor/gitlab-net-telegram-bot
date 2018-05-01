@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
 using GitlabTelegramBot.DB;
 using GitlabTelegramBot.Options;
 using Microsoft.Extensions.Logging;
@@ -13,16 +15,48 @@ using NetTelegramBotApi.Requests;
 using NetTelegramBotApi.Types;
 using NGitLab;
 using NGitLab.Models;
+using Extreme.Net;
 
 namespace GitlabTelegramBot
 {
+    public class CustomTelegramBot : TelegramBot
+    {
+        public CustomTelegramBot(String accessToken, ProxyConfig config)
+        : base(accessToken)
+        {
+            _config = config;
+        }
+
+        protected override HttpClientHandler MakeHttpMessageHandler()
+        {
+            if(_config.Enabled)
+            {
+                var sp = new Socks5ProxyClient(_config.Host,
+                    _config.Port,
+                    _config.UserName,
+                    _config.Password);
+
+                return new ProxyHandler(sp);
+            }
+            else
+            {
+                return base.MakeHttpMessageHandler();
+            }
+        }
+
+        private readonly ProxyConfig _config;
+    }
+
     public class Bot : ITelegramBot
     {
-        public Bot(ILogger<Bot> logger, TelegramBotDBContext context)
+        public Bot(ILogger<Bot> logger,
+            TelegramBotDBContext context,
+            IOptions<ProxyConfig> proxyConfig)
         {
             _logger = logger;
             _context = context;
             _newUsers = new List<TelegramBotUser>();
+            _config = proxyConfig.Value;
         }
 
         public void Connect(string accessToken, string name)
@@ -31,7 +65,7 @@ namespace GitlabTelegramBot
             {
                 _botName = name;
                 _logger.LogInformation($"Connected TelegramBot {name} with token: {accessToken}");
-                _bot = new TelegramBot(accessToken);
+                _bot = new CustomTelegramBot(accessToken, _config);
                 _cts = new CancellationTokenSource();
                 if (!CheckConnect().Result)
                 {
@@ -234,6 +268,7 @@ namespace GitlabTelegramBot
         private readonly ILogger<Bot> _logger;
         private readonly TelegramBotDBContext _context;
         private readonly GitLabClient _gitlab;
+        private readonly ProxyConfig _config;
 
         private TelegramBot _bot;
         private CancellationTokenSource _cts;

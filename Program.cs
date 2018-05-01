@@ -9,7 +9,10 @@ namespace GitlabTelegramBot
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
             var hostUrl = config.GetSection("HostURL")?.Value ?? "http://0.0.0.0:60000";
 
             var host = new WebHostBuilder()
