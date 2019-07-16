@@ -26,5 +26,6 @@ ProfileReports
 
 .idea
 
-bin/**
-obj/**
+bin/**/
+obj/**/
+*.lock
